@@ -30,6 +30,8 @@ Expected: `PASS=448 WARN=0 ERROR=0 SKIP=0`. No private database is needed. The p
 
 ### Overview
 
+**Power BI techniques:** DAX measures using `CALCULATE` for status-based amounts, `DIVIDE` for ratios, `DISTINCTCOUNT` for participating companies/coordinators/learners, and `SUMX` + `RELATED` for registration-level market value. Shared dimensions propagate filters across facts; role-playing dimensions distinguish date and company roles. Interactive slicers support training-category and stage analysis, with date-based certificate-expiration reporting.
+
 Overview of market value, agreed charges, customer participation, regional distribution, and training categories. This screenshot is from the private implementation, published with the project owner's approval; its figures differ from the fictional Docker dataset. Visuals and metric labels are still being refined.
 
 ![Power BI overview](docs/images/overview.png)
