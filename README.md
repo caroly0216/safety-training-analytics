@@ -92,7 +92,7 @@ docker compose exec db psql -U demo -d safety_training_demo -c "select collectio
 
 Fixtures cover personal/company registrations, paid/unpaid amounts, cancellation followed by normal registration, and known/unknown certificate dates. Certificate fixtures use dates relative to initialization; expiry counts change over time. Update the demo-specific assertion if changing fixtures.
 
-## Power BI (optional)
+## Power BI 
 
 The private Power BI report includes an overview, collection details, certificate information, process control, and learner information. The semantic model uses shared dimensions and role-playing dates/companies. Report visuals and metric labels are still being refined; the report is not presented as fully signed off. This repository currently provides the runnable warehouse, not a downloadable Power BI report or scheduled notification service.
 
