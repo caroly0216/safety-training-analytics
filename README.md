@@ -105,7 +105,7 @@ Fixtures cover personal/company registrations, paid/unpaid amounts, cancellation
 
 The private Power BI report includes an overview, collection details, certificate information, process control, and learner information. The semantic model uses shared dimensions and role-playing dates/companies. Report visuals and metric labels are still being refined; the report is not presented as fully signed off. This repository currently provides the runnable warehouse, not a downloadable Power BI report or scheduled notification service.
 
-PostgreSQL Import connection: `localhost:55432`, database `safety_training_demo`, user `demo`, password `demo_password`. These are public local-demo credentials, not production credentials. The database port binds only to localhost. Load dimensions and facts from `dbt_demo_marts`, with one-to-many, single-direction dimension-to-fact relationships. Dates and companies have multiple roles requiring role-specific relationships or copies. No private PBIX is included.
+PostgreSQL Import connection: `localhost:5432`, database `safety_training_demo`, user `demo`, password `demo_password`. These are public local-demo credentials, not production credentials. The database port binds only to localhost. Load dimensions and facts from `dbt_demo_marts`, with one-to-many, single-direction dimension-to-fact relationships. Dates and companies have multiple roles requiring role-specific relationships or copies. No private PBIX is included.
 
 ## Without Docker
 
