@@ -26,7 +26,15 @@ docker compose run --build --rm dbt
 
 Expected: `PASS=448 WARN=0 ERROR=0 SKIP=0`. No private database is needed. The public demo includes 13 fictional registrations; no PBIX is distributed. See below for connection settings, model grains, and limitations.
 
-## Power BI Model Preview
+## Power BI Preview
+
+### Overview
+
+Overview of market value, agreed charges, customer participation, regional distribution, and training categories. This screenshot is from the private implementation, published with the project owner's approval; its figures differ from the fictional Docker dataset. Visuals and metric labels are still being refined.
+
+![Power BI overview](docs/images/overview.png)
+
+### Semantic Model
 
 The private report's semantic model uses shared dimensions and role-playing date/company tables. This screenshot shows model structure, not business records; Power BI role copies increase the displayed table count beyond the warehouse's 17 dimensions.
 
