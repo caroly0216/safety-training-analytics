@@ -1,6 +1,28 @@
 # Safety Training Analytics Warehouse
 
-Portfolio excerpt of a PostgreSQL and dbt warehouse for safety-training operations. The private implementation integrates six operational source tables and serves Power BI reporting.
+A PostgreSQL and dbt analytics warehouse for safety-training operations, with a reproducible Docker demo and a separately developed Power BI reporting layer.
+
+The project transforms six operational source tables into shared dimensions and business-process facts. It supports registration analysis, collection tracking, training progress, and certificate-expiration follow-up.
+
+**Stack:** PostgreSQL 16 · dbt-core 1.12.4 · dbt-postgres 1.11.0 · Docker Compose · Power BI
+
+**Validation:** 33 models and 10 seeds built successfully; all 405 data tests passed in both local PostgreSQL and Docker runs.
+
+## Business questions
+
+- How do agreed training charges compare with market list prices and collected amounts?
+- Which companies and customer groups contribute to collections?
+- Which registrations are unpaid, cancelled, or still progressing through training?
+- Which recorded certificates have expired or are due within the next 90 days?
+
+## Design highlights
+
+- Layered transformations: raw sources → staging → intermediate → dimensional marts.
+- Shared learner, company, project, and training-stage dimensions across business processes.
+- Separate learner-company and settlement-company roles; group reporting without merging distinct companies.
+- Effective-dated project, pricing, and policy mappings with explicit Unknown and Not Applicable members.
+- Transaction/event facts plus a current-state accumulating process snapshot.
+- Relationship, uniqueness, required-field, price-version, and financial reconciliation tests.
 
 ## Model
 
@@ -10,6 +32,15 @@ Portfolio excerpt of a PostgreSQL and dbt warehouse for safety-training operatio
 - **Quality checks:** schema tests and custom reconciliation tests for price versions and registration collection status.
 
 The model separates agreed charges, market list prices, and collected amounts. Certificate expiration reporting uses the certificate end-date role of the date dimension; unknown expiration dates are not treated as expired.
+
+| Fact table | Grain / purpose |
+| --- | --- |
+| `fct_registration` | One source registration record; classification, agreed amount, collection status, and market-price reference |
+| `fct_payment` | One collected registration record; not a bank transaction ledger |
+| `fct_training_execution` | One registration's training record, including missing-date cases |
+| `fct_learner_certificate` | One source registration with certificate information; not necessarily one unique current certificate |
+| `fct_registration_status_change` | An inferred status transition between ordered registrations for the same learner and mapped project |
+| `fct_registration_process_snapshot` | One registration's current registration, training, and collection progress |
 
 ## Repository scope
 
@@ -32,9 +63,13 @@ analyses/            Profiling queries
 Install Docker with Compose, then run from this directory:
 
 ```sh
+git clone https://github.com/caroly0216/safety-training-analytics.git
+cd safety-training-analytics
 docker compose up -d db
 docker compose run --build --rm dbt
 ```
+
+If you already cloned the repository, skip the first two commands.
 
 First startup creates six raw tables and loads synthetic records. `dbt build` loads ten mapping seeds, builds models, and runs tests. Internet access is needed for first-time image/dependency downloads; port 55432 must be available.
 
@@ -59,6 +94,8 @@ Fixtures cover personal/company registrations, paid/unpaid amounts, cancellation
 
 ## Power BI (optional)
 
+The private Power BI report includes an overview, collection details, certificate information, process control, and learner information. The semantic model uses shared dimensions and role-playing dates/companies. Report visuals and metric labels are still being refined; the report is not presented as fully signed off. This repository currently provides the runnable warehouse, not a downloadable Power BI report or scheduled notification service.
+
 PostgreSQL Import connection: `localhost:55432`, database `safety_training_demo`, user `demo`, password `demo_password`. These are public local-demo credentials, not production credentials. The database port binds only to localhost. Load dimensions and facts from `dbt_demo_marts`, with one-to-many, single-direction dimension-to-fact relationships. Dates and companies have multiple roles requiring role-specific relationships or copies. No private PBIX is included.
 
 ## Without Docker
@@ -73,6 +110,14 @@ Use an empty, dedicated PostgreSQL database, never your production database.
 `demo/queries.sql` contains inspection queries. `demo/generate_samples.py` regenerates fictional mapping seeds without reading private records.
 
 The accumulating snapshot is a current-state table, not historical dbt snapshots. Date-dependent table attributes refresh when dbt runs.
+
+## Scope and limitations
+
+- The demo contains 13 fictional registration records designed to exercise business rules, not to demonstrate large-scale performance.
+- Source ingestion is represented by SQL fixtures; private spreadsheet inputs and ingestion tooling are not shipped here.
+- Status changes are inferred from source ordering, not captured from an authoritative audit log.
+- Certificate records can have unknown numbers or inferred expiry dates. Follow-up lists require business review before contacting learners.
+- Certificate-expiration analysis is implemented; automated messages, production scheduling, and a historical change-data-capture pipeline are outside this demo's scope.
 
 ## Verified build
 
