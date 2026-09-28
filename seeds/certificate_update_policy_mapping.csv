@@ -1,0 +1,7 @@
+certificate_update_policy_key,certificate_name,certificate_number_rule,industry,review_cycle_months,review_record_format,certificate_update_cycle_months,replacement_cycle_months,replaces_physical_certificate,certificate_number_changes,advance_reminder_days,supervisory_authority,effective_start_date,effective_end_date,is_current
+1,安全管理人员,演示规则,危化品,N/A,演示记录,36,36,否,否,90,应急局,1900-01-01,2099-12-31,Y
+2,职业卫生,演示规则,N/A,N/A,演示记录,36,36,否,否,90,职业健康协会,1900-01-01,2099-12-31,Y
+3,其他从业人员,演示规则,N/A,N/A,演示记录,36,36,否,否,90,应急局,1900-01-01,2099-12-31,Y
+4,有限空间,演示规则,N/A,N/A,演示记录,36,36,否,否,90,应急局,1900-01-01,2099-12-31,Y
+5,特种设备,演示规则,N/A,N/A,演示记录,48,48,否,否,90,质监局,1900-01-01,2099-12-31,Y
+6,特种作业,演示规则,N/A,N/A,演示记录,72,72,否,否,90,应急局,1900-01-01,2099-12-31,Y

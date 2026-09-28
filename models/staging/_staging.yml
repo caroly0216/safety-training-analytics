@@ -1,0 +1,185 @@
+version: 2
+
+models:
+  - name: stg_occupational_health_training
+    description: Cleaned occupational health training records.
+    columns:
+      - name: raw_record_id
+        description: Raw-layer record identifier.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_row_number
+        description: Original Excel row number.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: trainee_name
+        data_tests:
+          - not_null
+
+      - name: national_id
+        data_tests:
+          - not_null
+
+      - name: phone_number
+        data_tests:
+          - not_null
+
+      - name: amount
+        data_tests:
+          - not_null
+
+
+  - name: stg_special_equipment_training
+    description: Cleaned special equipment training records.
+    columns:
+      - name: raw_record_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_row_number
+        data_tests:
+          - not_null
+          - unique
+
+      - name: trainee_name
+        data_tests:
+          - not_null
+
+      - name: national_id
+        data_tests:
+          - not_null
+
+      - name: phone_number
+        data_tests:
+          - not_null
+
+      - name: amount
+        data_tests:
+          - not_null
+
+
+  - name: stg_special_operation_training
+    description: Cleaned special operation training records.
+    columns:
+      - name: raw_record_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_row_number
+        data_tests:
+          - not_null
+          - unique
+
+      - name: trainee_name
+        data_tests:
+          - not_null
+
+      - name: national_id
+        data_tests:
+          - not_null
+
+      - name: phone_number
+        data_tests:
+          - not_null
+
+
+  - name: stg_safety_training_certificate_summary
+    description: Cleaned online safety training records.
+    columns:
+      - name: raw_record_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_row_number
+        data_tests:
+          - not_null
+          - unique
+
+      - name: trainee_name
+        data_tests:
+          - not_null
+
+      - name: national_id
+        data_tests:
+          - not_null
+
+      - name: phone_number
+
+      - name: training_start_date
+        data_tests:
+          - not_null
+
+      - name: training_end_date
+        data_tests:
+          - not_null
+
+      - name: amount
+        data_tests:
+          - not_null
+
+
+  - name: stg_safety_training_offline_class
+    description: Cleaned offline safety training records with embedded title rows removed.
+    columns:
+      - name: raw_record_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_row_number
+        data_tests:
+          - not_null
+          - unique
+
+      - name: trainee_name
+        data_tests:
+          - not_null
+
+      - name: national_id
+        data_tests:
+          - not_null
+
+      - name: phone_number
+        data_tests:
+          - not_null
+
+      - name: declared_class
+        data_tests:
+          - not_null
+
+      - name: amount
+        data_tests:
+          - not_null
+
+
+  - name: stg_hazardous_chemical_management_training
+    description: Cleaned hazardous chemical management training records.
+    columns:
+      - name: raw_record_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_row_number
+        data_tests:
+          - not_null
+          - unique
+
+      - name: trainee_name
+        data_tests:
+          - not_null
+
+      - name: national_id
+        data_tests:
+          - not_null
+
+      - name: phone_number
+        data_tests:
+          - not_null

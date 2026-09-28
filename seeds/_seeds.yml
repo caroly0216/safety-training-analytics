@@ -1,0 +1,194 @@
+version: 2
+
+seeds:
+  - name: company_group_mapping
+    description: Confirmed exceptions to the default company-as-own-group reporting rule.
+    columns:
+      - name: company_name
+        data_tests:
+          - not_null
+          - unique
+
+      - name: company_group_name
+        data_tests:
+          - not_null
+
+  - name: company_location_mapping
+    columns:
+      - name: company_name
+        data_tests:
+          - not_null
+          - unique
+
+      - name: province
+        data_tests:
+          - not_null
+
+      - name: city
+        data_tests:
+          - not_null
+
+  - name: company_name_mapping
+    columns:
+      - name: raw_company_name
+        data_tests:
+          - not_null
+          - unique
+
+      - name: standardized_company_name
+        data_tests:
+          - not_null
+
+  - name: education_level_mapping
+    columns:
+      - name: raw_value
+        data_tests:
+          - not_null
+          - unique
+
+      - name: standardized_value
+        data_tests:
+          - not_null
+
+  - name: training_type_mapping
+    columns:
+      - name: raw_value
+        data_tests:
+          - not_null
+          - unique
+
+      - name: standardized_value
+        data_tests:
+          - not_null
+
+  - name: coordinator_name_mapping
+    description: Confirmed mapping of raw coordinator values to coordinator names and salesperson notes.
+
+    columns:
+      - name: training_source
+        data_tests:
+          - not_null
+
+      - name: raw_coordinator_value
+        data_tests:
+          - not_null
+
+      - name: coordinator_name
+        data_tests:
+          - not_null
+
+      - name: salesperson_note
+        description: Confirmed miscellaneous note associated with the raw coordinator value.
+
+      - name: review_decision
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Confirmed
+                  - Changed
+  - name: registration_project_mapping
+    description: Versioned registration project classification and supervisory authority mapping.
+
+    columns:
+      - name: mapping_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: certificate_name
+        data_tests:
+          - not_null
+
+      - name: supervisory_authority
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 应急局
+                  - 质监局
+                  - 职业健康协会
+                  - Unknown
+
+  - name: certificate_update_policy_mapping
+    description: Confirmed versioned certificate update policy mapping.
+
+    columns:
+      - name: certificate_update_policy_key
+        data_tests:
+          - not_null
+          - unique
+
+      - name: certificate_name
+        data_tests:
+          - not_null
+
+      - name: industry
+        data_tests:
+          - not_null
+
+      - name: effective_start_date
+        data_tests:
+          - not_null
+
+      - name: effective_end_date
+        data_tests:
+          - not_null
+
+      - name: is_current
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Y
+                  - N
+
+  - name: training_policy_mapping
+    description: >
+      Confirmed training policy rules. A specific classification overrides
+      a default rule for the same certificate, training stage, and date.
+      N/A means the policy does not constrain that classification.
+
+    columns:
+      - name: training_policy_key
+        data_tests:
+          - not_null
+          - unique
+
+      - name: certificate_name
+        data_tests:
+          - not_null
+
+      - name: training_stage
+        data_tests:
+          - not_null
+
+      - name: training_required
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 是
+                  - 否
+                  - N/A
+
+      - name: effective_start_date
+        data_tests:
+          - not_null
+
+      - name: effective_end_date
+        data_tests:
+          - not_null
+
+      - name: is_current
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Y
+                  - N

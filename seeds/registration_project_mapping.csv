@@ -1,0 +1,7 @@
+mapping_id,training_source,certificate_name,industry,project,subproject,training_category,project_code,classification_version,effective_start_date,effective_end_date,is_current,supervisory_authority
+1,hazardous_chemical_management,安全管理人员,危化品（经营单位）,N/A,N/A,N/A,N/A,demo-v1,1900-01-01,2099-12-31,Y,应急局
+2,occupational_health,职业卫生,N/A,N/A,N/A,N/A,N/A,demo-v1,1900-01-01,2099-12-31,Y,职业健康协会
+3,safety_training_online,其他从业人员,N/A,N/A,N/A,其他,N/A,demo-v1,1900-01-01,2099-12-31,Y,应急局
+4,safety_training_offline,其他从业人员,N/A,N/A,N/A,有限空间,N/A,demo-v1,1900-01-01,2099-12-31,Y,应急局
+5,special_equipment,特种设备,N/A,N/A,N/A,N/A,N1,demo-v1,1900-01-01,2099-12-31,Y,质监局
+6,special_operation,特种作业,N/A,电工作业,低压电工作业,N/A,N/A,demo-v1,1900-01-01,2099-12-31,Y,应急局

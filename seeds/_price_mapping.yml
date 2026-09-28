@@ -1,0 +1,45 @@
+version: 2
+
+seeds:
+  - name: price_mapping
+    description: Market price by project, training stage, fee category and effective period. Unknown means price not yet known; N/A means the fee does not apply.
+    config:
+      column_types:
+        price_key: bigint
+        registration_project_key: bigint
+        market_price: text
+        effective_start_date: date
+        effective_end_date: date
+    columns:
+      - name: price_key
+        data_tests:
+          - not_null
+          - unique
+      - name: registration_project_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_project')
+                field: registration_project_key
+      - name: training_stage
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['新训', '复训', '换证']
+      - name: fee_category
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['培训费', '理论考试费', '实操考试费']
+      - name: market_price
+        data_tests:
+          - not_null
+      - name: effective_start_date
+        data_tests:
+          - not_null
+      - name: effective_end_date
+        data_tests:
+          - not_null

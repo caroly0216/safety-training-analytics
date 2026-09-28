@@ -1,0 +1,260 @@
+version: 2
+
+models:
+
+  - name: int_registration_base
+    description: >
+      Unified registration records from the six staging models.
+
+    columns:
+
+      - name: registration_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: training_source
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - occupational_health
+                  - special_equipment
+                  - special_operation
+                  - safety_training_online
+                  - safety_training_offline
+                  - hazardous_chemical_management
+
+
+  - name: int_registration_enriched
+    description: >
+      Registration records enriched with confirmed coordinator,
+      payment, amount, certificate, and date validation rules.
+
+    columns:
+
+      - name: registration_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: training_source
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - occupational_health
+                  - special_equipment
+                  - special_operation
+                  - safety_training_online
+                  - safety_training_offline
+                  - hazardous_chemical_management
+
+      - name: coordinator_name
+        data_tests:
+          - not_null
+
+      - name: collection_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Collected
+                  - Uncollected
+                  - Unknown
+                  - Not Applicable
+
+      - name: payment_reference_number
+        description: >
+          Confirmed 7-digit or 12-digit payment reference number.
+
+      - name: amount
+        description: >
+          Actual collected amount after applying confirmed corrections.
+
+      - name: certificate_number
+        description: >
+          Certificate number after format validation.
+
+      - name: salesperson_note
+        description: >
+          Miscellaneous salesperson notes preserved from source fields.
+
+
+  - name: int_registration_classified
+    description: >
+      Registration records classified into standardized certificate,
+      industry, project, subproject, and training categories.
+
+    columns:
+
+      - name: registration_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: training_source
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - occupational_health
+                  - special_equipment
+                  - special_operation
+                  - safety_training_online
+                  - safety_training_offline
+                  - hazardous_chemical_management
+
+      - name: registration_project_mapping_id
+        description: >
+          Identifier of the classification rule used to classify
+          the registration record.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('registration_project_mapping')
+                field: mapping_id
+
+      - name: certificate_name
+        data_tests:
+          - not_null
+
+      - name: industry
+        data_tests:
+          - not_null
+
+      - name: project
+        data_tests:
+          - not_null
+
+      - name: subproject
+        data_tests:
+          - not_null
+
+      - name: training_category
+        data_tests:
+          - not_null
+
+      - name: project_code
+        description: >
+          Standard project code where the source classification
+          provides one.
+
+
+  - name: int_registration_standardized
+    description: >
+      Final standardized registration records with normalized
+      education level, training stage, business company name,
+      and registration project classification.
+
+    columns:
+
+      - name: registration_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: training_source
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - occupational_health
+                  - special_equipment
+                  - special_operation
+                  - safety_training_online
+                  - safety_training_offline
+                  - hazardous_chemical_management
+
+      - name: trainee_name
+        data_tests:
+          - not_null
+
+      - name: coordinator_name
+        data_tests:
+          - not_null
+
+      - name: education_level
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 初中
+                  - 高中
+                  - 中专
+                  - 大专
+                  - 本科
+                  - 研究生及以上
+                  - Unknown
+
+      - name: training_stage
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 新训
+                  - 复训
+                  - 换证
+                  - Unknown
+
+      - name: company_name
+        description: >
+          Business-standardized company name based on the
+          confirmed company name mapping.
+        data_tests:
+          - not_null
+
+      - name: collection_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Collected
+                  - Uncollected
+                  - Unknown
+                  - Not Applicable
+
+      - name: registration_project_mapping_id
+        description: >
+          Identifier of the project classification rule used
+          for the registration record.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('registration_project_mapping')
+                field: mapping_id
+
+      - name: certificate_name
+        data_tests:
+          - not_null
+
+      - name: industry
+        data_tests:
+          - not_null
+
+      - name: project
+        data_tests:
+          - not_null
+
+      - name: subproject
+        data_tests:
+          - not_null
+
+      - name: training_category
+        data_tests:
+          - not_null
+
+      - name: project_code
+        description: >
+          Standard project code where the applicable source
+          classification provides one.

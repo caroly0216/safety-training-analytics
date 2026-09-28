@@ -1,0 +1,12 @@
+safety_training:
+  target: demo
+  outputs:
+    demo:
+      type: postgres
+      host: "{{ env_var('DBT_DEMO_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_DEMO_PORT', '55432') | int }}"
+      user: "{{ env_var('DBT_DEMO_USER', 'demo') }}"
+      pass: "{{ env_var('DBT_DEMO_PASSWORD', 'demo_password') }}"
+      dbname: "{{ env_var('DBT_DEMO_DATABASE', 'safety_training_demo') }}"
+      schema: dbt_demo
+      threads: 2

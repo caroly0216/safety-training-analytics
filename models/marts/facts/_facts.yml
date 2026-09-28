@@ -1,0 +1,530 @@
+version: 2
+
+models:
+  - name: fct_registration_process_snapshot
+    description: >
+      Partial current process accumulating snapshot with one row per registration. Registration,
+      payment, and training statuses are preserved independently so all observed
+      combinations remain visible. Training completion is estimated from the
+      source end date, not verified attendance. Registration and payment milestone
+      dates are unavailable, so their elapsed-time measures are not calculated.
+      The table reflects the latest dbt build and must be rebuilt to refresh
+      time-dependent statuses.
+    columns:
+      - name: registration_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('fct_registration')
+                field: registration_id
+      - name: learner_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_learner')
+                field: learner_key
+      - name: registration_project_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_project')
+                field: registration_project_key
+      - name: training_stage_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_training_stage')
+                field: training_stage_key
+      - name: snapshot_as_of_date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: registration_status_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_status')
+                field: registration_status_key
+      - name: collection_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Collected', 'Uncollected', 'Unknown', 'Not Applicable']
+      - name: estimated_training_completion_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['报名异常未参加', '已完成', '进行中', '培训日期为空无法判断']
+      - name: registration_step_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['已完成', '异常', '待核查']
+      - name: payment_step_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['已完成', '未完成', '不适用', '待核查']
+      - name: training_step_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['预计已完成', '未完成', '异常未参加', '无法判断']
+      - name: training_start_date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: training_end_date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: collected_amount
+        description: Amount from fct_payment, present only for collected registrations.
+      - name: registration_count
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1]
+      - name: registration_completed_count
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: payment_completed_count
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: training_estimated_completed_count
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+
+  - name: fct_registration_status_change
+    description: >
+      One inferred status-change event between adjacent registrations for the
+      same learner, project mapping, and source when their status keys differ.
+      Source row order is treated as business time order per the confirmed
+      business rule. Same-status repeats and repeat-application notes alone
+      do not create status-change events.
+    columns:
+      - name: registration_status_change_key
+        data_tests:
+          - not_null
+          - unique
+      - name: learner_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_learner')
+                field: learner_key
+      - name: original_registration_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('int_registration_standardized')
+                field: registration_id
+      - name: original_registration_status_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_status')
+                field: registration_status_key
+      - name: new_registration_status_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_status')
+                field: registration_status_key
+      - name: coordinator_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_coordinator')
+                field: coordinator_key
+      - name: salesperson_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_salesperson')
+                field: salesperson_key
+      - name: change_reason
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['取消', '迟到', '改期']
+      - name: linked_new_registration_id
+        description: Immediately following registration for the same learner and project, whose status differs from the original.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_registration_standardized')
+                field: registration_id
+
+  - name: fct_learner_certificate
+    description: >
+      One certificate observation per eligible source registration. A row is
+      included when a certificate number, initial issue date, or expiry date
+      is present. If expiry is missing but issue date exists, expiry is
+      estimated using the matched certificate update or replacement cycle.
+      When both source dates exist and the gap exceeds six calendar years,
+      both date keys and status are Unknown; source dates remain unchanged.
+      Status is estimated as of the latest dbt build; rebuild to refresh it.
+      A future renewal requires a distinct source record to preserve history.
+    columns:
+      - name: certificate_record_key
+        data_tests:
+          - not_null
+          - unique
+      - name: registration_id
+        description: Registration identifier for cross-process tracing; not a foreign key to another fact.
+        data_tests:
+          - not_null
+          - unique
+      - name: learner_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_learner')
+                field: learner_key
+      - name: registration_project_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_project')
+                field: registration_project_key
+      - name: certificate_update_policy_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_certificate_update_policy')
+                field: certificate_update_policy_key
+      - name: certificate_number
+        description: Source certificate number or Unknown when only a date is available.
+        data_tests:
+          - not_null
+      - name: initial_certificate_date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: certificate_expiry_date_key
+        description: Source expiry date if present; otherwise estimated from issue date and policy cycle.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: certificate_status_key
+        description: 1 valid, 2 expired, -1 Unknown, estimated from resolved expiry date.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_certificate_status')
+                field: certificate_status_key
+
+  - name: fct_payment
+    description: >
+      One row per registration marked Collected in the standardized source.
+      This is a registration-level collected-amount allocation, not a verified
+      bank transaction ledger. A 12-digit payment reference is classified as
+      bank transfer; all other references are classified as other methods.
+      The receipt/reference number is not unique.
+    columns:
+      - name: payment_record_key
+        data_tests:
+          - not_null
+          - unique
+      - name: registration_id
+        description: Registration identifier retained for cross-process tracing, not a foreign key to another fact.
+        data_tests:
+          - not_null
+          - unique
+      - name: payment_receipt_number
+        description: Source payment reference number; may be null or shared by multiple registrations.
+      - name: collected_amount
+        description: Cleaned amount from the registration source.
+        data_tests:
+          - not_null
+      - name: settlement_coordinator_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_coordinator')
+                field: coordinator_key
+      - name: registration_project_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_project')
+                field: registration_project_key
+      - name: training_stage_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_training_stage')
+                field: training_stage_key
+      - name: registration_service_scope_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_service_scope')
+                field: registration_service_scope_key
+      - name: learner_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_learner')
+                field: learner_key
+      - name: payment_method_key
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2]
+          - relationships:
+              arguments:
+                to: ref('dim_payment_method')
+                field: payment_method_key
+      - name: settlement_subject_type_key
+        description: Role-playing dim_coordinator_type; 1 personal, 2 company.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_coordinator_type')
+                field: coordinator_type_key
+      - name: learner_company_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_company')
+                field: company_key
+      - name: settlement_company_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_company')
+                field: company_key
+
+  - name: fct_registration
+    description: >
+      One row per learner registration for one project and training stage.
+      Agreed amount is the charge actually agreed for the registration, not
+      the market list price; collection status distinguishes collected from
+      uncollected amounts. Unknown and Not Applicable amounts are not assigned
+      to either category. The price key selects the training-fee price version
+      by project, stage and ingestion date, a proxy for registration date.
+    columns:
+      - name: registration_id
+        description: Source-specific registration identifier; the fact table's unique row identifier.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: coordinator_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_coordinator')
+                field: coordinator_key
+
+      - name: registration_project_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_project')
+                field: registration_project_key
+
+      - name: learner_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_learner')
+                field: learner_key
+
+      - name: training_stage_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_training_stage')
+                field: training_stage_key
+
+      - name: registration_service_scope_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_service_scope')
+                field: registration_service_scope_key
+
+      - name: company_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_company')
+                field: company_key
+
+      - name: subject_type_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_subject_type')
+                field: subject_type_key
+
+      - name: registration_status_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_status')
+                field: registration_status_key
+
+      - name: price_key
+        description: Matched training-fee price version; -1 means no matching version.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_price')
+                field: price_key
+
+      - name: training_policy_key
+        description: Matched training policy at the registration ingestion date; -1 means no matching policy.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_training_policy')
+                field: training_policy_key
+
+      - name: agreed_amount
+        description: >
+          Source amount agreed for this registration. This is not the market
+          list price and does not by itself prove payment; use collection_status.
+
+      - name: collection_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Collected', 'Uncollected', 'Unknown', 'Not Applicable']
+
+  - name: fct_training_execution
+    description: >
+      One row per registration in the current sources. Recorded training dates do not
+      by themselves prove attendance or completion. Missing dates use the Unknown
+      date key. Estimated completion status is stored as of the most recent
+      dbt build and must be rebuilt when the status needs refreshing.
+    columns:
+      - name: training_record_key
+        data_tests:
+          - not_null
+          - unique
+      - name: registration_id
+        description: Registration identifier retained for cross-process tracing, not a foreign key to another fact.
+        data_tests:
+          - not_null
+          - unique
+      - name: actual_training_batch
+        description: >
+          Batch or class label copied from the source declared_class field.
+          Null when the source has no batch; this does not independently verify
+          attendance or execution.
+      - name: learner_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_learner')
+                field: learner_key
+      - name: registration_project_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_registration_project')
+                field: registration_project_key
+      - name: training_stage_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_training_stage')
+                field: training_stage_key
+      - name: training_start_date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: training_end_date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+      - name: estimated_training_completion_status
+        description: Estimated from notes and end date as of the latest dbt build, not verified attendance.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['报名异常未参加', '已完成', '进行中', '培训日期为空无法判断']

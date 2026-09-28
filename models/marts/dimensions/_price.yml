@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: dim_price
+    description: One market price version per project, training stage, fee category and effective period.
+    columns:
+      - name: price_key
+        data_tests:
+          - not_null
+          - unique
+      - name: registration_project_key
+        data_tests:
+          - not_null
+      - name: training_stage
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['新训', '复训', '换证', 'Unknown', 'Not Applicable']
+      - name: fee_category
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['培训费', '理论考试费', '实操考试费', 'Unknown', 'Not Applicable']
+      - name: price_status
+        description: Unknown means market price is not known; N/A means the fee does not apply. Neither means zero.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Quoted', 'Unknown', 'N/A', 'Not Applicable']
+      - name: effective_start_date
+        data_tests:
+          - not_null
+      - name: effective_end_date
+        data_tests:
+          - not_null

@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: safety_training_demo
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo_password
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - demo_pgdata:/var/lib/postgresql/data
+      - ./demo/raw_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./demo/fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d safety_training_demo"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  dbt:
+    build:
+      context: .
+      dockerfile: demo/Dockerfile
+    environment:
+      DBT_DEMO_HOST: db
+      DBT_DEMO_PORT: "5432"
+      DBT_DEMO_USER: demo
+      DBT_DEMO_PASSWORD: demo_password
+      DBT_DEMO_DATABASE: safety_training_demo
+    volumes:
+      - .:/workspace
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["build", "--profiles-dir", "demo"]
+volumes:
+  demo_pgdata:

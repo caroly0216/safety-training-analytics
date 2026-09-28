@@ -1,0 +1,8 @@
+training_source,raw_coordinator_value,coordinator_name,salesperson_note,review_decision
+hazardous_chemical_management,DemoCoordinator01,DemoCoordinator01,,Confirmed
+occupational_health,DemoCoordinator01,DemoCoordinator01,,Confirmed
+safety_training_online,DemoCoordinator01,DemoCoordinator01,,Confirmed
+safety_training_offline,DemoCoordinator01,DemoCoordinator01,,Confirmed
+special_equipment,DemoCoordinator01,DemoCoordinator01,,Confirmed
+special_operation,DemoCoordinator01,DemoCoordinator01,,Confirmed
+occupational_health,DemoCancelled,DemoCoordinator01,取消,Confirmed

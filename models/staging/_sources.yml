@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: raw
+    database: "{{ target.database }}"
+    schema: raw
+
+    tables:
+      - name: occupational_health_training
+      - name: special_equipment_training
+      - name: special_operation_training
+      - name: safety_training_certificate_summary
+      - name: safety_training_offline_class
+      - name: hazardous_chemical_management_training

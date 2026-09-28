@@ -1,0 +1,605 @@
+version: 2
+
+models:
+
+  - name: dim_date
+    description: >
+      Standard date dimension covering 1900 through 2099.
+
+    columns:
+
+      - name: date_key
+        description: >
+          Date surrogate key in YYYYMMDD format.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: full_date
+        description: Calendar date.
+
+      - name: year
+        description: Calendar year.
+
+      - name: quarter
+        description: Calendar quarter.
+
+      - name: month
+        description: Calendar month number.
+
+      - name: month_name
+        description: Calendar month name.
+
+      - name: day
+        description: Day of month.
+
+      - name: day_of_week
+        description: >
+          ISO weekday number from 1 for Monday through 7 for Sunday.
+
+      - name: day_name
+        description: Weekday name.
+
+
+  - name: dim_registration_project
+    description: >
+      SCD Type 2 registration project dimension based on the
+      confirmed registration project mapping.
+
+    columns:
+
+      - name: registration_project_key
+        description: >
+          Surrogate key for one historical version of a registration
+          project. -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: certificate_name
+        data_tests:
+          - not_null
+
+      - name: industry
+        data_tests:
+          - not_null
+
+      - name: project
+        data_tests:
+          - not_null
+
+      - name: subproject
+        data_tests:
+          - not_null
+
+      - name: training_type
+        data_tests:
+          - not_null
+
+      - name: supervisory_authority
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 应急局
+                  - 质监局
+                  - 职业健康协会
+                  - Unknown
+                  - Not Applicable
+
+      - name: effective_start_date
+        data_tests:
+          - not_null
+
+      - name: effective_end_date
+        data_tests:
+          - not_null
+
+      - name: is_current
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Y
+                  - N
+
+
+  - name: dim_training_stage
+    description: >
+      Training stage dimension with stable surrogate keys.
+
+    columns:
+
+      - name: training_stage_key
+        description: >
+          Training stage surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: training_stage_name
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 新训
+                  - 复训
+                  - 换证
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_company
+    description: >
+      Type 1 conformed company dimension used by registration
+      and payment facts. Company name preserves the learner's
+      standardized unit; company group name supports business
+      rollups and defaults to company name when no special rule exists.
+
+    columns:
+
+      - name: company_key
+        description: >
+          Stable company surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: company_name
+        data_tests:
+          - unique
+          - not_null
+
+      - name: company_group_name
+        description: Business reporting group or brand for the company.
+        data_tests:
+          - not_null
+
+      - name: province
+        data_tests:
+          - not_null
+
+      - name: city
+        data_tests:
+          - not_null
+
+
+  - name: dim_learner
+    description: >
+      Type 1 learner dimension identified by national ID.
+
+    columns:
+
+      - name: learner_key
+        description: >
+          Stable learner surrogate key generated from national ID.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: learner_name
+        data_tests:
+          - not_null
+
+      - name: national_id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: education_level
+        data_tests:
+          - not_null
+
+      - name: phone_number
+        data_tests:
+          - not_null
+
+      - name: contact_address
+        data_tests:
+          - not_null
+
+
+  - name: dim_coordinator
+    description: >
+      Type 1 coordinator dimension based on confirmed standardized names.
+
+    columns:
+
+      - name: coordinator_key
+        description: >
+          Stable coordinator surrogate key generated from coordinator name.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: coordinator_name
+        data_tests:
+          - unique
+          - not_null
+
+
+  - name: dim_salesperson
+    description: >
+      Type 1 salesperson dimension containing current salesperson details.
+
+    columns:
+
+      - name: salesperson_key
+        description: >
+          Salesperson surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: salesperson_name
+        data_tests:
+          - unique
+          - not_null
+
+      - name: phone_number
+        data_tests:
+          - not_null
+
+      - name: employment_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 在职
+                  - 离职
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_registration_service_scope
+    description: >
+      Registration service scope dimension.
+
+    columns:
+
+      - name: registration_service_scope_key
+        description: >
+          Registration service scope surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: registration_service_scope_name
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 培训
+                  - 考试
+                  - 培训及考试
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_certificate_processing_type
+    description: >
+      Certificate processing type dimension.
+
+    columns:
+
+      - name: certificate_processing_type_key
+        description: >
+          Certificate processing type surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: certificate_processing_type_name
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 初次申领
+                  - 到期更新（不换证）
+                  - 到期换证（可发实体证）
+                  - 复审记录/合格证
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_subject_type
+    description: >
+      Shared subject type dimension used by registration and payment facts.
+
+    columns:
+
+      - name: subject_type_key
+        description: >
+          Subject type surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: subject_type_name
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 个人报名
+                  - 单位报名
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_coordinator_type
+    description: >
+      Coordinator type dimension describing the coordinator's role
+      for each registration.
+
+    columns:
+
+      - name: coordinator_type_key
+        description: >
+          Coordinator type surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: coordinator_type_name
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 个人
+                  - 单位
+                  - 中介
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_payment_method
+    description: >
+      Payment method dimension.
+
+    columns:
+
+      - name: payment_method_key
+        description: >
+          Payment method surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: payment_method_name
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 对公转账
+                  - 其他方式
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_registration_status
+    description: >
+      Registration status dimension reused for original and new status roles.
+
+    columns:
+
+      - name: registration_status_key
+        description: >
+          Registration status surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: registration_status_name
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 正常
+                  - 取消
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_certificate_status
+    description: >
+      Certificate status dimension.
+
+    columns:
+
+      - name: certificate_status_key
+        description: >
+          Certificate status surrogate key.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: certificate_status_name
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 有效
+                  - 失效
+                  - Unknown
+                  - Not Applicable
+
+
+  - name: dim_certificate_update_policy
+    description: >
+      SCD Type 2 certificate update policy dimension based on the
+      confirmed certificate update policy mapping.
+
+    columns:
+
+      - name: certificate_update_policy_key
+        description: >
+          Surrogate key for one historical version of a certificate update
+          policy. -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: certificate_name
+        data_tests:
+          - not_null
+
+      - name: certificate_number_rule
+        data_tests:
+          - not_null
+
+      - name: industry
+        data_tests:
+          - not_null
+
+      - name: review_record_format
+        data_tests:
+          - not_null
+
+      - name: replaces_physical_certificate
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 是
+                  - 否
+                  - Unknown
+                  - Not Applicable
+
+      - name: certificate_number_changes
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 是
+                  - 否
+                  - Unknown
+                  - Not Applicable
+
+      - name: supervisory_authority
+        data_tests:
+          - not_null
+
+      - name: effective_start_date
+        data_tests:
+          - not_null
+
+      - name: effective_end_date
+        data_tests:
+          - not_null
+
+      - name: is_current
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Y
+                  - N
+
+
+  - name: dim_training_policy
+    description: >
+      SCD Type 2 training policy dimension based on the confirmed policy
+      mapping. Specific rules take precedence over default rules when
+      assigning a policy key to an event.
+
+    columns:
+
+      - name: training_policy_key
+        description: >
+          Surrogate key for one historical version of a training policy.
+          -1 represents Unknown and -2 represents Not Applicable.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: certificate_name
+        data_tests:
+          - not_null
+
+      - name: industry
+        data_tests:
+          - not_null
+
+      - name: project
+        data_tests:
+          - not_null
+
+      - name: subproject
+        data_tests:
+          - not_null
+
+      - name: training_type
+        data_tests:
+          - not_null
+
+      - name: training_stage
+        data_tests:
+          - not_null
+
+      - name: training_required
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 是
+                  - 否
+                  - N/A
+                  - Unknown
+                  - Not Applicable
+
+      - name: training_format
+        data_tests:
+          - not_null
+
+      - name: effective_start_date
+        data_tests:
+          - not_null
+
+      - name: effective_end_date
+        data_tests:
+          - not_null
+
+      - name: is_current
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Y
+                  - N
