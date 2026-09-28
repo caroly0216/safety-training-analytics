@@ -1,28 +1,30 @@
 # Safety Training Analytics Warehouse
 
-A PostgreSQL and dbt analytics warehouse for safety-training operations, with a reproducible Docker demo and a separately developed Power BI reporting layer.
-
-The project transforms six operational source tables into shared dimensions and business-process facts. It supports registration analysis, collection tracking, training progress, and certificate-expiration follow-up.
+A PostgreSQL/dbt dimensional warehouse integrating six safety-training source tables for registration, collections, training progress, and certificate-expiration analysis. Includes a tested Docker demo with fictional data; Power BI reporting is developed separately.
 
 **Stack:** PostgreSQL 16 · dbt-core 1.12.4 · dbt-postgres 1.11.0 · Docker Compose · Power BI
 
 **Validation:** 33 models and 10 seeds built successfully; all 405 data tests passed in both local PostgreSQL and Docker runs.
 
-## Business questions
+## Dimensional modeling highlights
 
-- How do agreed training charges compare with market list prices and collected amounts?
-- Which companies and customer groups contribute to collections?
-- Which registrations are unpaid, cancelled, or still progressing through training?
-- Which recorded certificates have expired or are due within the next 90 days?
+- **Explicit fact grains:** separate registration, payment, training, and certificate records to avoid double counting.
+- **Conformed and role-playing dimensions:** support cross-process analysis while distinguishing learner/settlement companies and date roles.
+- **Events and accumulating snapshot:** combine inferred status transitions with current registration, training, and collection progress.
+- **Effective-dated matching and quality checks:** match prices and policies by validity period, handle Unknown/Not Applicable members, and validate the model with 405 data tests.
 
-## Design highlights
+## Quick start
 
-- Layered transformations: raw sources → staging → intermediate → dimensional marts.
-- Shared learner, company, project, and training-stage dimensions across business processes.
-- Separate learner-company and settlement-company roles; group reporting without merging distinct companies.
-- Effective-dated project, pricing, and policy mappings with explicit Unknown and Not Applicable members.
-- Transaction/event facts plus a current-state accumulating process snapshot.
-- Relationship, uniqueness, required-field, price-version, and financial reconciliation tests.
+With Docker Desktop running, execute:
+
+```sh
+git clone https://github.com/caroly0216/safety-training-analytics.git
+cd safety-training-analytics
+docker compose up -d db
+docker compose run --build --rm dbt
+```
+
+Expected: `PASS=448 WARN=0 ERROR=0 SKIP=0`. No private database is needed. The public demo includes 13 fictional registrations; no PBIX is distributed. See below for connection settings, model grains, and limitations.
 
 ## Model
 
@@ -60,16 +62,7 @@ analyses/            Profiling queries
 
 ## Run with Docker
 
-Install Docker with Compose, then run from this directory:
-
-```sh
-git clone https://github.com/caroly0216/safety-training-analytics.git
-cd safety-training-analytics
-docker compose up -d db
-docker compose run --build --rm dbt
-```
-
-If you already cloned the repository, skip the first two commands.
+Use the Quick start commands above. If you already cloned the repository, run only the two `docker compose` commands from its directory.
 
 First startup creates six raw tables and loads synthetic records. `dbt build` loads ten mapping seeds, builds models, and runs tests. Internet access is needed for first-time image/dependency downloads; port 55432 must be available.
 
